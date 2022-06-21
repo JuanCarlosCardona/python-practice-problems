@@ -3,11 +3,12 @@ from queue import PriorityQueue
 
 
 class Node:
-    def __init__(self, cost, row, column):
+    def __init__(self, cost, row, column, came_from=None):
         self.cost = cost
         self.row = row
         self.column = column
         self.neighbours = []
+        self.came_from = came_from
 
     def __lt__(self, other):
         return self.cost < other.cost
@@ -27,41 +28,45 @@ def dijkstra(source, grid):
     open_nodes = PriorityQueue()
     open_nodes.put(source)
     visited = {source}
-    calculated_cost = source.cost
-    costs_set = {cost: float('inf') for row in grid for cost in row}
+    costs_set = {cost: float('inf') for row in grid for cost in row}  # initialize all nodes to +inf
     costs_set[source] = source.cost
-
-    came_from = {}
 
     while not open_nodes.empty():
         current_node = open_nodes.get()
         visited.remove(current_node)
 
-        if len(current_node.neighbours) == 0:
-            break
+        if len(current_node.neighbours) == 0:   # Base case
+            return get_result(current_node)
 
         for neighbour in current_node.neighbours:
             tmp_cost = costs_set[current_node] + neighbour.cost
 
             if tmp_cost < costs_set[neighbour]:
 
-                came_from[current_node] = neighbour
+                neighbour.came_from = current_node
 
                 if not visited.__contains__(neighbour):
-                    calculated_cost += neighbour.cost
                     costs_set[neighbour] = tmp_cost
                     open_nodes.put(neighbour)
                     visited.add(neighbour)
 
-    return print_path(came_from)
+    return 0
 
 
-def print_path(came_from):
+def get_result(current):
     result = 0
-    for previous, current in came_from.items():
-        print(f'Cost {previous.cost} : Row {previous.row} : Column {previous.column} -> Cost {current.cost} : '
-              f'Row {current.row} : Column {current.column}')
-        result += previous.cost
+    path = []
+
+    # Append the path from end to origin and get the sum of the weights of each node
+    while not (current is None):
+        path.append(current)
+        result += current.cost
+        current = current.came_from
+
+    reversed_path = path[::-1]  # Order path from origin to end
+
+    for node in reversed_path:
+        print(f'Node( Cost {node.cost} : Row {node.row} : Column {node.column}) ->', end=' ')
 
     return result
 
@@ -80,5 +85,5 @@ for i in range(total_rows):
         node = gold_list[i][j]
         node.update_neighbours(gold, total_rows)
 
-max_coins = dijkstra(gold[2, 0], gold)
+max_coins = dijkstra(gold[0, 0], gold)
 print(f'Result : {max_coins}')
