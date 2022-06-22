@@ -1,3 +1,11 @@
+# Given a gold mine of n*m dimensions. Each field in this mine contains a
+# positive integer which is the amount of gold in tons. Initially the miner is at
+# first column but can be at any row. He can move only (right->,right up /,right
+# down\) that is from a given cell, the miner can move to the cell diagonally up
+# towards the right or right or diagonally down towards the right.
+# Find out maximum amount of gold he can collect.
+
+
 import numpy as np
 from queue import PriorityQueue
 
@@ -10,7 +18,7 @@ class Node:
         self.neighbours = []
         self.came_from = came_from
 
-    def __lt__(self, other):
+    def __gt__(self, other):
         return self.cost < other.cost
 
     def update_neighbours(self, grid, rows):
@@ -85,5 +93,5 @@ for i in range(total_rows):
         node = gold_list[i][j]
         node.update_neighbours(gold, total_rows)
 
-max_coins = dijkstra(gold[0, 0], gold)
+max_coins = dijkstra(gold[2, 0], gold)
 print(f'Result : {max_coins}')
